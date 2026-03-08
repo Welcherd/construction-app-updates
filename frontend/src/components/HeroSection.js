@@ -8,8 +8,8 @@ export default function HeroSection() {
       <div className="absolute inset-0 bg-background/40" />
 
       <div className="relative z-10 mx-auto max-w-4xl">
-        <p className="mb-4 text-sm font-semibold uppercase tracking-[0.25em] text-primary" data-testid="hero-subtitle">
-          Construction Connection
+        <p className="mb-4 text-sm font-semibold tracking-[0.25em] text-primary" data-testid="hero-subtitle">
+          CONSTRUCTION CONNECTION
         </p>
         <h1 className="text-balance text-5xl font-bold leading-tight tracking-tight text-foreground md:text-7xl lg:text-8xl" data-testid="hero-title">
           Building the World,{" "}
