@@ -15,6 +15,7 @@ import ProjectsSection from "@/components/ProjectsSection";
 import ServicesSection from "@/components/ServicesSection";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
+import MapSection from "@/components/MapSection";
 import { useIsMobile } from "@/hooks/useMobile";
 import { HardHat, Bell, Globe } from "lucide-react";
 
@@ -103,6 +104,7 @@ function DesktopApp() {
       <main>
         <HeroSection />
         <StatsSection />
+        <MapSection />
         <ProjectsSection />
         <ServicesSection />
         <ContactSection />
