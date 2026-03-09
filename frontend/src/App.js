@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import "@/App.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import EarthBackground from "@/components/EarthBackground";
 import { AppShell } from "@/components/AppShell";
 import { FeedTab } from "@/components/FeedTab";
@@ -16,36 +17,59 @@ import ServicesSection from "@/components/ServicesSection";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 import MapSection from "@/components/MapSection";
+import RegisteredUsers from "@/components/RegisteredUsers";
+import { AuthModal } from "@/components/AuthModal";
 import { useIsMobile } from "@/hooks/useMobile";
-import { HardHat, Bell, Globe } from "lucide-react";
+import { HardHat, Bell, Globe, User, LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 function TopBar() {
+  const { user, isAuthenticated, logout } = useAuth();
+  const [showAuth, setShowAuth] = useState(false);
+
   return (
-    <div className="flex w-full items-center justify-between px-4 py-2.5">
-      <div className="flex items-center gap-2">
-        <div className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-          <HardHat className="h-5 w-5 text-primary-foreground" />
-          <Globe className="absolute -bottom-0.5 -right-0.5 h-3 w-3 text-accent" />
+    <>
+      <div className="flex w-full items-center justify-between px-4 py-2.5">
+        <div className="flex items-center gap-2">
+          <div className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+            <HardHat className="h-5 w-5 text-primary-foreground" />
+            <Globe className="absolute -bottom-0.5 -right-0.5 h-3 w-3 text-accent" />
+          </div>
+          <div>
+            <h1 className="text-base font-bold text-foreground tracking-tight leading-tight">
+              ConstructionConnection
+            </h1>
+            <p className="text-[10px] text-muted-foreground tracking-wider uppercase leading-none">
+              42 countries · 186K workers
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-base font-bold text-foreground tracking-tight leading-tight">
-            ConstructionConnection
-          </h1>
-          <p className="text-[10px] text-muted-foreground tracking-wider uppercase leading-none">
-            42 countries · 186K workers
-          </p>
+        <div className="flex items-center gap-2">
+          {isAuthenticated ? (
+            <>
+              <span className="text-sm text-muted-foreground hidden sm:block">
+                {user?.username}
+              </span>
+              <button
+                type="button"
+                className="relative rounded-lg p-2 text-muted-foreground transition-colors select-none active:bg-muted"
+                aria-label="Notifications"
+                data-testid="notifications-btn"
+              >
+                <Bell className="h-5 w-5" />
+                <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-primary" />
+              </button>
+            </>
+          ) : (
+            <Button size="sm" onClick={() => setShowAuth(true)} data-testid="mobile-login-btn">
+              <User className="h-4 w-4 mr-1" />
+              Sign In
+            </Button>
+          )}
         </div>
       </div>
-      <button
-        type="button"
-        className="relative rounded-lg p-2 text-muted-foreground transition-colors select-none active:bg-muted"
-        aria-label="Notifications"
-        data-testid="notifications-btn"
-      >
-        <Bell className="h-5 w-5" />
-        <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-primary" />
-      </button>
-    </div>
+      <AuthModal isOpen={showAuth} onClose={() => setShowAuth(false)} />
+    </>
   );
 }
 
@@ -105,6 +129,7 @@ function DesktopApp() {
         <HeroSection />
         <StatsSection />
         <MapSection />
+        <RegisteredUsers />
         <ProjectsSection />
         <ServicesSection />
         <ContactSection />
@@ -130,7 +155,9 @@ function AppContent() {
 function App() {
   return (
     <ThemeProvider defaultTheme="dark">
-      <AppContent />
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </ThemeProvider>
   );
 }
