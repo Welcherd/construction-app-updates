@@ -65,6 +65,12 @@ class Address(BaseModel):
     zip_code: str
     is_primary: bool = False
 
+class Location(BaseModel):
+    lat: float
+    lng: float
+    city: Optional[str] = None
+    country: Optional[str] = None
+
 class UserRegistration(BaseModel):
     username: str
     email: EmailStr
@@ -82,6 +88,7 @@ class UserRegistration(BaseModel):
     bio: Optional[str] = None
     phone: Optional[str] = None
     country: str = "US"
+    location: Optional[Location] = None
     consent_data_sharing: bool = False
 
 class UserLogin(BaseModel):
@@ -106,6 +113,7 @@ class UserProfile(BaseModel):
     bio: Optional[str] = None
     phone: Optional[str] = None
     country: str
+    location: Optional[Location] = None
     avatar_url: Optional[str] = None
     rating: float = 0.0
     reviews_count: int = 0
@@ -129,6 +137,7 @@ class UserProfileUpdate(BaseModel):
     bio: Optional[str] = None
     phone: Optional[str] = None
     country: Optional[str] = None
+    location: Optional[Location] = None
     avatar_url: Optional[str] = None
 
 class TokenResponse(BaseModel):
@@ -246,6 +255,7 @@ async def register_user(user_data: UserRegistration):
         "bio": user_data.bio,
         "phone": user_data.phone,
         "country": user_data.country,
+        "location": user_data.location.model_dump() if user_data.location else None,
         "consent_data_sharing": user_data.consent_data_sharing,
         "avatar_url": None,
         "rating": 0.0,
@@ -428,6 +438,85 @@ async def get_status_checks():
             check['timestamp'] = datetime.fromisoformat(check['timestamp'])
     
     return status_checks
+
+
+# ==================== WORKERS MAP ROUTES ====================
+
+class WorkerMapItem(BaseModel):
+    id: str
+    username: str
+    company: Optional[str] = None
+    role: str
+    expertise_level: str
+    specializations: List[str] = []
+    years_experience: int = 0
+    rating: float = 0.0
+    projects_completed: int = 0
+    location: Location
+    avatar_url: Optional[str] = None
+
+class WorkersMapResponse(BaseModel):
+    workers: List[WorkerMapItem]
+    total: int
+
+@api_router.get("/workers/map", response_model=WorkersMapResponse)
+async def get_workers_for_map(
+    role: Optional[str] = None,
+    specialization: Optional[str] = None,
+    min_experience: int = 0,
+    min_rating: float = 0.0
+):
+    """Get workers with location data for map display"""
+    query = {
+        "is_active": True,
+        "location": {"$ne": None}
+    }
+    
+    if role:
+        query["role"] = role
+    if specialization:
+        query["specializations"] = {"$in": [specialization]}
+    if min_experience > 0:
+        query["years_experience"] = {"$gte": min_experience}
+    if min_rating > 0:
+        query["rating"] = {"$gte": min_rating}
+    
+    workers_cursor = db.users.find(
+        query,
+        {
+            "_id": 0,
+            "id": 1,
+            "username": 1,
+            "company": 1,
+            "role": 1,
+            "expertise_level": 1,
+            "specializations": 1,
+            "years_experience": 1,
+            "rating": 1,
+            "projects_completed": 1,
+            "location": 1,
+            "avatar_url": 1
+        }
+    ).limit(500)
+    
+    workers = await workers_cursor.to_list(500)
+    
+    return WorkersMapResponse(
+        workers=[WorkerMapItem(**w) for w in workers if w.get("location")],
+        total=len(workers)
+    )
+
+@api_router.put("/users/me/location")
+async def update_user_location(
+    location: Location,
+    user: dict = Depends(get_current_user)
+):
+    """Update current user's location"""
+    await db.users.update_one(
+        {"id": user["id"]},
+        {"$set": {"location": location.model_dump()}}
+    )
+    return {"message": "Location updated successfully", "location": location}
 
 
 # ==================== APP SETUP ====================

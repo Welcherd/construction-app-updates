@@ -39,6 +39,12 @@ Merge a 3D global background with the ConstructionConnection app from GitHub rep
 - [x] User login with JWT authentication
 - [x] Registered Users section with search, role filter, pagination
 - [x] User cards with country flags, expertise badges, specializations
+- [x] **Find Workers Near Me** - Interactive map showing workers worldwide
+- [x] Worker location tracking (lat/lng coordinates)
+- [x] Map filters: Role, Specialization, Min Experience
+- [x] "Near Me" geolocation button
+- [x] Color-coded markers by role (Worker=green, Contractor=amber, Equipment Owner=blue, Project Manager=purple)
+- [x] Worker info popups with profile details and Connect button
 
 ## Prioritized Backlog
 

@@ -18,6 +18,7 @@ import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 import MapSection from "@/components/MapSection";
 import RegisteredUsers from "@/components/RegisteredUsers";
+import FindWorkersSection from "@/components/FindWorkersSection";
 import { AuthModal } from "@/components/AuthModal";
 import { useIsMobile } from "@/hooks/useMobile";
 import { HardHat, Bell, Globe, User, LogOut } from "lucide-react";
@@ -128,6 +129,7 @@ function DesktopApp() {
       <main>
         <HeroSection />
         <StatsSection />
+        <FindWorkersSection />
         <MapSection />
         <RegisteredUsers />
         <ProjectsSection />
